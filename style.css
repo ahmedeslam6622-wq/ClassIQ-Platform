@@ -80,7 +80,7 @@ body {
   margin: 0 auto;
 }
 
-.input-group input {
+.input-group input, .input-group select {
   width: 100%;
   padding: 12px 16px;
   border-radius: var(--radius-sm);
@@ -89,10 +89,20 @@ body {
   color: #ffffff;
   font-size: 14px;
   transition: var(--transition-standard);
+  outline: none;
 }
 
-.input-group input:focus {
-  outline: none;
+.input-group select {
+  background-color: rgba(18, 24, 36, 0.95);
+  cursor: pointer;
+}
+
+.input-group select option {
+  background-color: #121824;
+  color: #ffffff;
+}
+
+.input-group input:focus, .input-group select:focus {
   border-color: var(--accent);
   background-color: rgba(255, 255, 255, 0.1);
 }
@@ -187,7 +197,7 @@ body {
   transform: rotate(180deg);
 }
 
-/* ─── NAVIGATION SHAPES ─── */
+/* ─── SIDEBAR NAV ITEMS ─── */
 #sidebar nav {
   display: flex;
   flex-direction: column;
@@ -238,7 +248,7 @@ body {
   opacity: 1;
 }
 
-/* ─── COLLAPSED INTERFACE CONFIGURATION ─── */
+/* ─── COLLAPSED ARCHITECTURE ─── */
 #dashboard.collapsed #sidebar nav .nav-item span {
   display: none;
   opacity: 0;
@@ -266,7 +276,7 @@ body {
   transform: scale(1.08);
 }
 
-/* ─── MAIN CONTENT PLATFORM GRID SURFACES ─── */
+/* ─── HEADER TOP BAR SURFACES ─── */
 #top-bar {
   grid-area: topbar;
   display: flex;
@@ -334,6 +344,7 @@ body {
   transform: scale(1.05);
 }
 
+/* ─── DASHBOARD CONTENT CARDS GRID ─── */
 #widget-container {
   grid-area: content;
   display: grid;
@@ -355,7 +366,6 @@ body {
   padding: 0 4px;
 }
 
-/* ─── WIDGET CARD TILES ─── */
 .widget {
   padding: 24px;
   border-radius: var(--radius-lg);
@@ -428,7 +438,7 @@ body {
   margin: 0;
 }
 
-/* ─── BRAND LOGO CONSTANTS ─── */
+/* ─── OFFICIAL LOGO ENGINE ─── */
 #site-logo {
   position: absolute;
   top: 24px;
@@ -458,41 +468,21 @@ body.logged-in #site-logo {
   filter: drop-shadow(0 4px 12px rgba(29, 78, 216, 0.25));
 }
 
-/* ─── CUSTOM GRAPHIC TRACK THEME SCROLLBAR ─── */
-
-/* 1. Standard Layout Footprint Size (Locks thin dimensions) */
+/* ─── GRAPHIC ACCENT SCROLLBARS ─── */
 ::-webkit-scrollbar {
-  width: 8px;               /* Width for vertical scroll bars */
-  height: 8px;              /* Height for horizontal scroll bars */
-  display: block !important; /* Overrides your previous 'display: none' block rule */
+  width: 8px;
+  height: 8px;
+  display: block !important;
 }
 
-/* 2. Underneath Rail Foundation Track Layer */
 ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.01); /* Translucent blend background layer */
+  background: rgba(255, 255, 255, 0.01);
   border-radius: var(--radius-sm);
 }
 
-/* 3. Dynamic Drag Handle Track Thumb */
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);  /* Subtle dark-mode compliant white block tint */
-  border: 2px solid transparent;          /* Generates a clean border buffer cushion gap */
-  background-clip: padding-box;           /* Keeps the edge gap transparent */
-  border-radius: var(--radius-sm);
-  transition: var(--transition-standard);
-}
-
-/* 4. Interactive Hover Highlight State Lock */
-::-webkit-scrollbar-thumb:hover {
-  background: var(--accent);              /* Snaps cleanly to your signature brand blue on mouse drag (#1a56df) */
+  background: rgba(255, 255, 255, 0.1);
   border: 2px solid transparent;
   background-clip: padding-box;
-}
-
-/* ─── CLEANUP OVERRIDES: Remove old hidden parameters ─── */
-html {
-  scrollbar-width: thin;                 /* Enables modern Firefox browser standards fallback */
-  scrollbar-color: rgba(255, 255, 255, 0.1) rgba(255, 255, 255, 0.01);
-  -ms-overflow-style: auto;              /* Re-enables scrolling capabilities for IE/Edge engines */
-}
+border-radius: var(--radius-sm);}::-webkit-scrollbar-thumb:hover {background: var(--accent);border: 2px solid transparent;background-clip: padding-box;}html {scrollbar-width: thin;scrollbar-color: rgba(255, 255, 255, 0.1) rgba(255, 255, 255, 0.01);-ms-overflow-style: auto;overflow-x: hidden;}
 
