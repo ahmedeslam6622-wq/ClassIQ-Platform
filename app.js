@@ -1,3 +1,4 @@
+javascript
 // ─── DOM ELEMENT REFERENCES ───
 const signupToggle = document.getElementById("signup-toggle");
 const loginToggle = document.getElementById("login-toggle");
@@ -14,9 +15,10 @@ const sidebarNav = document.getElementById("sidebar-navigation");
 const widgetContainer = document.getElementById("widget-container");
 const nameEl = document.getElementById("name");
 const schoolNameEl = document.getElementById("school-name");
+const logoutBtn = document.getElementById("logout-btn");
 
 // ─── DATA CONFIGURATIONS ───
-const WIDGETS = [
+const STUDENT_WIDGETS = [
   { type: "label", text: "Main Categories" }, 
   { id: "assignmentsWidget", label: "Assignments", size: "normal" },
   { id: "examsWidget", label: "Exams", size: "normal" },
@@ -24,26 +26,20 @@ const WIDGETS = [
   { id: "mailboxWidget", label: "Mailbox", size: "normal" }, 
   { id: "notificationsWidget", label: "Notifications", size: "normal" }, 
   { id: "ebooksWidget", label: "Ebooks", size: "small" },
-
   { type: "label", text: "Other" },
-  { 
-    id: "videoWidget", 
-    label: "Videos", 
-    size: "normal",
-    iconString: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8" fill="rgba(255, 255, 255, 0.1)"></polygon></svg>`
-  },
-  { 
-    id: "reportCardsWidget", 
-    label: "Report Cards", 
-    size: "normal",
-    iconString: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="12" y2="17"></line></svg>`
-  },
+  { id: "videoWidget", label: "Videos", size: "normal", iconString: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8" fill="rgba(255, 255, 255, 0.1)"></polygon></svg>` },
+  { id: "reportCardsWidget", label: "Report Cards", size: "normal", iconString: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="12" y2="17"></line></svg>` }
 ];
 
-const CURRENT_USER = {
-  name: "Ahmed Eslam Fawzy Abdel Ghani Hassan",
-  school: "MASE Middle School",
-};
+const TEACHER_WIDGETS = [
+  { type: "label", text: "Academic Control Desk" },
+  { id: "gradingWidget", label: "Grade Submissions", size: "normal", iconString: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>` },
+  { id: "attendanceWidget", label: "Attendance Roll", size: "normal", iconString: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>` },
+  { id: "coursesWidget", label: "Manage Courses", size: "normal" },
+  { id: "mailboxWidget", label: "Teacher Mailbox", size: "normal" }, 
+  { type: "label", text: "Global Analytics" },
+  { id: "reportsWidget", label: "Class Performance Reports", size: "small", iconString: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>` }
+];
 
 // ─── RENDER PLATFORM INFORMATION ───
 function renderWidgets() {
@@ -51,7 +47,10 @@ function renderWidgets() {
   widgetContainer.innerHTML = ""; 
   const fragment = document.createDocumentFragment();
 
-  WIDGETS.forEach((item) => {
+  const currentRole = localStorage.getItem("classiq_user_role") || "student";
+  const targetWidgetsList = (currentRole === "teacher") ? TEACHER_WIDGETS : STUDENT_WIDGETS;
+
+  targetWidgetsList.forEach((item) => {
     if (item.type === "label") {
       const heading = document.createElement("h3");
       heading.className = "main-categories-label"; 
@@ -105,14 +104,33 @@ function renderWidgets() {
 }
 
 function renderUserInfo() {
-  if (nameEl) nameEl.textContent = CURRENT_USER.name;
-  if (schoolNameEl) schoolNameEl.textContent = CURRENT_USER.school;
+  const name = localStorage.getItem("classiq_user_name") || "Ahmed Eslam Fawzy";
+  const role = localStorage.getItem("classiq_user_role") || "student";
+  
+  if (nameEl) nameEl.textContent = name;
+  if (schoolNameEl) schoolNameEl.textContent = `MASE Middle School (${role.toUpperCase()} PORTAL)`;
 }
 
 // ─── RUNTIME WORKSPACE HANDLERS ───
-function handleLoginAction() {
-  // LOCALSTORAGE UPDATE: Save authentication token to browser memory
+function handleSignupSubmit() {
+  const roleSelect = document.getElementById("signup-role");
+  const nameInput = document.getElementById("signup-name");
+
+  if (!roleSelect.value || !nameInput.value) return;
+
   localStorage.setItem("classiq_logged_in", "true");
+  localStorage.setItem("classiq_user_name", nameInput.value);
+  localStorage.setItem("classiq_user_role", roleSelect.value);
+
+  loadDashboard();
+}
+
+function handleLoginSubmit() {
+  localStorage.setItem("classiq_logged_in", "true");
+  if (!localStorage.getItem("classiq_user_name")) {
+    localStorage.setItem("classiq_user_name", "Ahmed Eslam Fawzy");
+    localStorage.setItem("classiq_user_role", "student");
+  }
   loadDashboard();
 }
 
@@ -128,9 +146,14 @@ function loadDashboard() {
   
   renderUserInfo();
   renderWidgets();
-  
-  // LOCALSTORAGE UPDATE: Reapply saved sidebar state once dashboard loads
   applySavedSidebarState();
+}
+
+function handleLogout() {
+  localStorage.removeItem("classiq_logged_in");
+  localStorage.removeItem("classiq_user_name");
+  localStorage.removeItem("classiq_user_role");
+  window.location.reload();
 }
 
 function showSignup() {
@@ -155,12 +178,10 @@ function setupNavigationClickHandlers() {
 
 function applySavedSidebarState() {
   const dashboardContainer = document.getElementById("dashboard");
-  // LOCALSTORAGE UPDATE: Read saved user toggle preference
   const isCollapsed = localStorage.getItem("classiq_sidebar_collapsed") === "true";
   
   if (dashboardContainer && isCollapsed) {
     dashboardContainer.classList.add("collapsed");
-    // Match the custom dynamic branding resize mechanics we built earlier
     if (siteLogo) {
       siteLogo.style.width = "44px";
       siteLogo.style.height = "44px";
@@ -178,8 +199,6 @@ function setupSidebarToggle() {
       dashboardContainer.classList.toggle("collapsed");
       
       const isCollapsed = dashboardContainer.classList.contains("collapsed");
-      
-      // LOCALSTORAGE UPDATE: Commit structural state change variable to device memory
       localStorage.setItem("classiq_sidebar_collapsed", isCollapsed ? "true" : "false");
 
       if (siteLogo) {
@@ -197,33 +216,21 @@ function setupSidebarToggle() {
   }
 }
 
-// Optional Logout Trigger Helper
-function handleLogout() {
-  localStorage.removeItem("classiq_logged_in");
-  window.location.reload();
-}
-
 // ─── CORE ORCHESTRATOR INITIALIZATION ───
 function init() {
   setupSidebarToggle();
   setupNavigationClickHandlers();
 
-  // Route button actions to use authentication storage wrapper handlers
-  if (loginButton) loginButton.addEventListener("click", handleLoginAction);
-  if (signupButton) signupButton.addEventListener("click", handleLoginAction);
+  const loginSubmitBtn = document.getElementById("login-submit-btn");
+  const signupSubmitBtn = document.getElementById("signup-submit-btn");
+
+  if (loginSubmitBtn) loginSubmitBtn.addEventListener("click", handleLoginSubmit);
+  if (signupSubmitBtn) signupSubmitBtn.addEventListener("click", handleSignupSubmit);
+  if (logoutBtn) logoutBtn.addEventListener("click", handleLogout);
   
   if (signupToggle) signupToggle.addEventListener("click", showSignup);
   if (loginToggle) loginToggle.addEventListener("click", showLogin);
 
-  // LOCALSTORAGE UPDATE: Check if user has an active login session running
   const isLoggedIn = localStorage.getItem("classiq_logged_in") === "true";
-  if (isLoggedIn) {
-    loadDashboard();
-  }
-}
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", init);
-} else {
-  init();
-}
+  if (isLoggedIn) {loadDashboard();}}if (document.readyState === "loading") {document.addEventListener("DOMContentLoaded", init);} else {init();}
+  
