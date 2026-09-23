@@ -10,7 +10,7 @@
 
   <!-- THE OFFICIAL COLORED BRAND LOGO -->
   <div id="site-logo">
-    <svg viewBox="0 0 48 48" fill="none" xmlns="http://w3.org">
+    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="crestBlue" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
           <stop offset="0%" stop-color="#3b82f6"/>
@@ -35,44 +35,63 @@
     <div id="title">ClassIQ</div>
     
     <div id="login-signup-container" class="glass-panel">
-      <!-- Login Form View -->
-      <div id="login-form-container">
+     <div id="auth-views">
+      <!-- Login Form View (initial state is declared here, not by JS) -->
+      <div id="login-form-container" class="auth-view active">
         <h2>Login</h2>
         <div class="input-group">
-          <input type="text" id="login-username" placeholder="Username" required>
-          <input type="password" id="login-password" placeholder="Password" required>
+          <input type="text" id="login-username" placeholder="Username" required autocomplete="username">
+          <input type="password" id="login-password" placeholder="Password" required autocomplete="current-password">
+          <p id="login-error" class="auth-error" hidden></p>
           <button id="login-submit-btn">Login</button>
         </div>
         <div class="auth-switch">
-          Don't have an account? <span id="signup-toggle" class="auth-switch-link">Sign Up</span>
+          Don't have an account? <span id="signup-toggle" class="auth-switch-link">Sign Up as a Teacher</span>
         </div>
       </div>
 
       <!-- Signup Form View -->
-      <div id="signup-form-container" style="display: none;">
+      <div id="signup-form-container" class="auth-view">
         <h2>Sign Up</h2>
         <div class="input-group">
-          <select id="signup-role" required>
-            <option value="" disabled selected>Join ClassIQ as a...</option>
-            <option value="student">Student</option>
-            <option value="teacher">Teacher</option>
-          </select>
           <input type="text" id="signup-name" placeholder="Full Name" required>
           <input type="text" id="signup-username" placeholder="Username" required>
           <input type="email" id="signup-email" placeholder="Email Address" required>
-          <input type="password" id="signup-password" placeholder="Password" required>
+          <input type="password" id="signup-password" placeholder="Password" required autocomplete="new-password">
+          <p id="signup-error" class="auth-error" hidden></p>
           <button id="signup-submit-btn">Sign Up</button>
         </div>
         <div class="auth-switch">
           Already have an account? <span id="login-toggle" class="auth-switch-link">Login</span>
         </div>
       </div>
+     </div>
     </div>
   </main>
 
-  <!-- 2. MAIN APPLICATION PLATFORM -->
+  <!-- RECOVERY EMAIL PROMPT: shown once after a student's first login if
+       contact_email is still unset. Reuses the same glass-panel / scaleUpFadeIn
+       language as #setup-container so it doesn't look like a bolted-on dialog. -->
+  <div id="email-prompt-overlay">
+    <div id="email-prompt-container" class="glass-panel">
+      <h2>Add a Recovery Email?</h2>
+      <p id="email-prompt-subtext">
+        Optional, but it's the only way to reset your password if you forget it.
+        Your teacher can still do it for you either way.
+      </p>
+      <div class="input-group">
+        <input type="email" id="email-prompt-input" placeholder="you@example.com" autocomplete="email">
+        <p id="email-prompt-error" class="auth-error" hidden></p>
+        <button id="email-prompt-save">Save</button>
+        <button id="email-prompt-skip">Skip for now</button>
+      </div>
+    </div>
+  </div>
+
+    <!-- 2. MAIN APPLICATION PLATFORM -->
   <div id="app-main" style="display: none;">
     <div id="dashboard">
+    
       
       <!-- SIDEBAR -->
       <aside id="sidebar" class="glass-panel">
@@ -85,14 +104,7 @@
         </button>
 
         <nav>
-          <!-- Home -->
-          <div class="nav-item active">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m22 10-10-8-10 8v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V10Z"/>
-              <path d="M6 22V10M18 22V10M12 22v-6"/>
-            </svg>
-            <span>Home</span>
-          </div>
+        
 
           <!-- Assignments -->
           <div class="nav-item">
@@ -114,7 +126,7 @@
             <span>Exams</span>
           </div>
 
-          <!-- Courses -->
+          <!-- Courses / Manage Courses -->
           <div class="nav-item">
             <svg id="coursesWidget-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
@@ -123,7 +135,7 @@
             <span>Courses</span>
           </div>
 
-          <!-- Mailbox -->
+          <!-- Mailbox / Teacher Mailbox -->
           <div class="nav-item">
             <svg id="mailboxWidget-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
@@ -140,8 +152,19 @@
             </svg>
             <span>Notifications</span>
           </div>
+
+          <!-- Settings -->
+          <div class="nav-item" id="nav-settings">
+            <!-- id="settingsWidget-icon" so the JavaScript can reuse it -->
+            <svg id="settingsWidget-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+            <span>Settings</span>
+          </div>
         </nav>
       </aside>
+
 
       <!-- TOPBAR -->
       <header id="top-bar">
@@ -151,25 +174,66 @@
         </div>
 
         <div class="top-bar-widgets-group">
-          <div id="mailbox" class="top-bar-widget">
+          <button id="mailbox" class="top-bar-widget">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
-          </div>
-          <div id="notifications" class="top-bar-widget">
+          </button>
+          <button id="notifications" class="top-bar-widget">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-          </div>
+          </button>
+
+          <button id="info" class="top-bar-widget">
+            <svg xmlns="http://w3.org" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+
+          </button>
+
           <!-- Quick Action Logout Button Session -->
-          <div id="logout-btn" class="top-bar-widget" title="Logout">
+          <button id="logout-btn" class="top-bar-widget" title="Logout">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
-          </div>
+          </button>
+
         </div>
       </header>
 
       <!-- MAIN WORKSPACE CONTENT AREA -->
       <section id="widget-container"></section>
 
+      <!-- THE FULL WINDOW SUBJECT DETAILS PORTAL PANEL OVERLAY -->
+<div id="subject-detail-modal" class="full-section">
+  
+  <!-- 1. The Global Section Header Label Block -->
+  <div id="section-label">Placeholder</div>
+
+  
+
+  <!-- 3. RIGHT MAIN CONTENT CANVASES GO HERE (Optional placeholder for balance) -->
+  <main class="modal-main-content">
+    <div class="empty-state-wrapper">
+      <p id="subtext">Placeholder</p>
     </div>
+  </main>
+
+  <!-- 4. CLOSE BUTTON: Kept inside the modal layout tree. 
+       Removed 'display: none' inline style so your CSS transitions handle visibility correctly -->
+  <div id="close-button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
   </div>
 
+</div> <!-- Clean wrapper closure for #subject-detail-modal -->
+
+
+        
+
+        <!-- Templates -->
+        <div class="modal-main-content"></div>
+         
+      
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="auth.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
