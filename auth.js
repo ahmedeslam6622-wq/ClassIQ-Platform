@@ -6,7 +6,7 @@
 const SUPABASE_URL = "https://oggwsvrakfookgmkolve.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9nZ3dzdnJha2Zvb2tnbWtvbHZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNjAzMTQsImV4cCI6MjEwNTczNjMxNH0._GGn3dug05YV5aNPjgSZRGo6icyiRHNTxJkMi80gxV8";
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Internal state. Not exported directly — read through the functions below,
 // so callers always get the current value rather than a stale snapshot.
@@ -20,7 +20,7 @@ function _notify() {
 }
 
 async function _loadProfile(userId) {
-  const { data, error } = await supabase
+  const { data, error } = await supabaseClient
     .from("profiles")
     .select("*")
     .eq("id", userId)
@@ -39,7 +39,7 @@ async function _loadProfile(userId) {
 // callers should show a generic "invalid username or password" either way,
 // never "no such username", which would let someone enumerate accounts.
 async function _resolveLoginEmail(username) {
-  const { data, error } = await supabase.rpc("get_login_email", { p_username: username });
+  const { data, error } = await supabaseClient.rpc("get_login_email", { p_username: username });
   if (error) {
     console.error("Username lookup failed:", error.message);
     return null;
@@ -53,7 +53,7 @@ async function _resolveLoginEmail(username) {
  * future auth changes to keep both in sync.
  */
 async function init() {
-  const { data } = await supabase.auth.getSession();
+  const { data } = await supabaseClient.auth.getSession();
   _session = data.session;
   if (_session) {
     await _loadProfile(_session.user.id);
@@ -61,7 +61,7 @@ async function init() {
   _ready = true;
   _notify();
 
-  supabase.auth.onAuthStateChange(async (_event, session) => {
+  supabaseClient.auth.onAuthStateChange(async (_event, session) => {
     _session = session;
     _profile = null;
     if (session) {
@@ -104,7 +104,7 @@ async function loginWithUsername(username, password) {
     return { error: "Invalid username or password." };
   }
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
   if (error) {
     return { error: "Invalid username or password." };
   }
@@ -122,7 +122,7 @@ async function signupTeacher({ username, full_name, email, password }) {
     return { error: "All fields are required." };
   }
 
-  const { error } = await supabase.auth.signUp({
+  const { error } = await supabaseClient.auth.signUp({
     email,
     password,
     options: {
@@ -167,7 +167,7 @@ async function createStudent({ username, full_name, password }) {
 async function saveContactEmail(email) {
   if (!_session) return { error: "Not logged in." };
 
-  const { error } = await supabase
+  const { error } = await supabaseClient
     .from("profiles")
     .update({ contact_email: email })
     .eq("id", _session.user.id);
@@ -182,7 +182,7 @@ async function saveContactEmail(email) {
 async function dismissEmailPrompt() {
   if (!_session) return { error: "Not logged in." };
 
-  const { error } = await supabase
+  const { error } = await supabaseClient
     .from("profiles")
     .update({ email_prompt_dismissed: true })
     .eq("id", _session.user.id);
@@ -194,7 +194,7 @@ async function dismissEmailPrompt() {
 }
 
 async function logout() {
-  await supabase.auth.signOut();
+  await supabaseClient.auth.signOut();
 }
 
 window.ClassIQAuth = {
