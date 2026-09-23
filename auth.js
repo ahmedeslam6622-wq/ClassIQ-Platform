@@ -62,12 +62,22 @@ async function init() {
   _notify();
 
   supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+    const previousUserId = _session?.user?.id;
+    const nextUserId = session?.user?.id;
     _session = session;
-    _profile = null;
-    if (session) {
-      await _loadProfile(session.user.id);
+
+    if (nextUserId !== previousUserId) {
+      // Only actually changed users (or logged out) should clear the
+      // profile before reloading — re-firing for the SAME user (which
+      // happens right after signupTeacher()/loginWithUsername() already
+      // set _session and _profile directly) must not null out data that's
+      // already correct, or the UI flashes blank/wrong before catching up.
+      _profile = null;
+      if (session) {
+        await _loadProfile(session.user.id);
+      }
+      _notify();
     }
-    _notify();
   });
 }
 
@@ -122,7 +132,7 @@ async function signupTeacher({ username, full_name, email, password }) {
     return { error: "All fields are required." };
   }
 
-  const { error } = await supabaseClient.auth.signUp({
+  const { data, error } = await supabaseClient.auth.signUp({
     email,
     password,
     options: {
@@ -133,6 +143,20 @@ async function signupTeacher({ username, full_name, email, password }) {
   if (error) {
     return { error: error.message };
   }
+
+  // signUp() already returns the new session directly — with email
+  // confirmation off, this is live immediately. Setting it here, rather
+  // than waiting for onAuthStateChange to fire asynchronously, closes the
+  // race where generateTeacherSetup() (opened right after this resolves)
+  // could call createStudent() before _session existed.
+  _session = data.session;
+  if (_session) {
+    // The on_auth_user_created trigger inserts the profiles row inside the
+    // same transaction as the auth.users insert, so it's already there by
+    // the time signUp() resolves — no retry/poll needed.
+    await _loadProfile(_session.user.id);
+  }
+  _notify();
   return { error: null };
 }
 
