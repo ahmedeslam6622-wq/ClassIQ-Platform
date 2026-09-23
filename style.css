@@ -1,3 +1,4 @@
+/* ─── CLASS IQ STYLESHEET CORE ─── */
 * {
   margin: 0;
   padding: 0;
@@ -19,18 +20,181 @@
   --transition-standard: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+:root {
+  /* Default positions for the 3 gradients */
+  --grad1-x: 85%;
+  --grad1-y: 15%;
+  --grad2-x: 15%;
+  --grad2-y: 80%;
+  --grad3-x: 50%;
+  --grad3-y: 50%;
+}
+
+@property --grad1-x { syntax: '<percentage>'; inherits: false; initial-value: 85%; }
+@property --grad1-y { syntax: '<percentage>'; inherits: false; initial-value: 15%; }
+@property --grad2-x { syntax: '<percentage>'; inherits: false; initial-value: 15%; }
+@property --grad2-y { syntax: '<percentage>'; inherits: false; initial-value: 80%; }
+@property --grad3-x { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
+@property --grad3-y { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
+
 body {
   margin: 0;
   min-height: 100vh;
   background-color: #121824;
   background-image:
-    radial-gradient(circle at 85% 15%, rgba(26, 86, 219, 0.25) 0%, transparent 45%),
-    radial-gradient(circle at 15% 80%, rgba(217, 119, 6, 0.12) 0%, transparent 40%),
-    radial-gradient(circle at 50% 50%, rgba(15, 118, 110, 0.15) 0%, transparent 50%);
+    radial-gradient(circle at var(--grad1-x) var(--grad1-y), rgba(26, 86, 219, 0.25) 0%, transparent 45%),
+    radial-gradient(circle at var(--grad2-x) var(--grad2-y), rgba(217, 119, 6, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at var(--grad3-x) var(--grad3-y), rgba(15, 118, 110, 0.15) 0%, transparent 50%);
   background-attachment: fixed;
   color: var(--color);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow-x: hidden;
 }
+
+/* Plays once for 2 seconds when the page loads, then stays at 100% */
+body.is-animating {
+  animation: shiftGradients 3s ease-out forwards;
+}
+
+@keyframes shiftGradients {
+  0% {
+    --grad1-x: 85%;  --grad1-y: 15%;
+    --grad2-x: 15%;  --grad2-y: 80%;
+    --grad3-x: 50%;  --grad3-y: 50%;
+  }
+  100% {
+    --grad1-x: 15%;  --grad1-y: 75%;
+    --grad2-x: 85%;  --grad2-y: 20%;
+    --grad3-x: 20%;  --grad3-y: 15%;
+  }
+}
+
+/* ─── BRAND APP TITLE: #app-title shares its rules with #title (see auth layout below) ─── */
+
+/* ─── SETUP VIEW CONTEXT STRUCTURES ─── */
+#setup-container {
+  /* System Backdrop Engine Parameters */
+  background: var(--panel-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
+  border-radius: var(--radius-lg);
+
+  /* Fluid size: fills the row up to a cap, so it can never exceed the viewport.
+     Position is owned by #setup-wrapper, not by this element. */
+  width: 100%;
+  max-width: 650px;
+  min-height: 500px;
+  padding: clamp(2rem, 6vw, 4rem) clamp(1.5rem, 5vw, 3.5rem);
+
+  /* Vertically center the content inside min-height so top/bottom gaps match */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+
+  /* The natural state equals the end state, so no fill-mode is needed */
+  animation: scaleUpFadeIn 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #setup-container {
+    animation: none;
+  }
+}
+
+/* 1. Define the keyframes */
+@keyframes scaleUpFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.93); /* Starts slightly smaller */
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);    /* Settles at actual size */
+  }
+}
+
+
+
+
+
+/* Headings aligned with deep theme contrast parameters */
+#branding {
+  color: #ffffff;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.02em;
+}
+
+
+
+
+
+#subtext {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1.1rem;
+  font-weight: 400;
+  line-height: 1.6;
+  margin-top: 0;
+  margin-bottom: 3rem;
+}
+
+/* ─── DYNAMIC SYSTEM MAPPED CONTROL INTERACTION NODES ─── */
+button {
+  display: block;
+  width: 100%;
+  padding: 14px 20px; 
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: var(--transition-standard);
+  margin-bottom: 1rem;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+#add {
+  background-color: transparent;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#add:hover {
+  background-color: var(--panel-bg-hover);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+#confirm {
+  background-color: var(--accent);
+  color: #ffffff;
+}
+
+#confirm:hover {
+  background-color: var(--accent-hover);
+  box-shadow: 0 0 24px rgba(26, 86, 219, 0.35);
+}
+
+#skip {
+  background-color: transparent;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 500;
+  margin-bottom: 0; 
+}
+
+#skip:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+
 
 .glass-panel {
   background: var(--panel-bg);
@@ -41,27 +205,82 @@ body {
   border-radius: var(--radius-lg);
 }
 
-/* ─── AUTH LAYOUT ─── */
-#auth-wrapper {
+/* ─── AUTHENTICATION INITIAL WORKSPACE LAYOUT ─── */
+#auth-wrapper,
+#setup-wrapper {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  min-height: 100dvh; /* mobile: excludes the collapsing browser toolbar so centering doesn't jump */
   width: 100%;
   padding: 20px;
 }
 
-#title {
+#title,
+#app-title {
   text-align: center;
   margin-bottom: 24px;
   font-size: 4em;
 }
 
 #login-signup-container {
+  opacity: 0;
+  pointer-events: none;
   width: 100%;
   max-width: 400px;
   padding: 32px;
+}
+
+#login-signup-container.active {
+  opacity: 1;
+  pointer-events: auto;
+  animation: scaleUpFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ─── AUTH VIEW SWITCHING ───
+   Both views live in the same grid cell, so they are always laid out and
+   measurable. Visibility is driven ONLY by the .active class (never by
+   inline styles or display:none, which can't be transitioned).
+   #auth-views' height is set/animated by switchAuthView() in app.js;
+   without JS it simply falls back to the taller view. */
+#auth-views {
+  display: grid;
+  overflow: hidden; /* clips the taller inactive view while height is constrained */
+}
+
+.auth-view {
+  grid-area: 1 / 1;
+  align-self: start;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(10px) scale(0.98);
+  /* Leaving: fade out fast, flip visibility only after the fade finished */
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    visibility 0s linear 0.2s;
+}
+
+.auth-view.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: none;
+  /* Entering: wait for the outgoing view to mostly fade, then ease in */
+  transition:
+    opacity 0.35s ease 0.12s,
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.12s,
+    visibility 0s linear 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-view,
+  .auth-view.active {
+    transition: none;
+  }
 }
 
 #login-signup-container h2 {
@@ -139,7 +358,109 @@ body {
   color: var(--accent-hover);
 }
 
-/* ─── DASHBOARD GRID INTERFACE ─── */
+.auth-error {
+  font-size: 13px;
+  color: #f87171;
+  margin: -4px 0 0 0;
+  text-align: left;
+}
+
+.auth-success {
+  font-size: 13px;
+  color: #4ade80;
+  margin: -4px 0 0 0;
+  text-align: left;
+}
+
+/* ─── POST-LOGIN RECOVERY EMAIL PROMPT ───
+   Same overlay/active pattern as .full-section: laid out at all times,
+   visibility owned entirely by the .active class so it can transition
+   instead of snapping. Sits above the dashboard (z-index 10001) but the
+   dashboard is what's behind it, not the auth screen, so it doesn't reuse
+   .full-section's z-index directly. */
+#email-prompt-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+
+  background: rgba(10, 15, 26, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+  z-index: 10001;
+}
+
+#email-prompt-overlay.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+#email-prompt-container {
+  width: 100%;
+  max-width: 380px;
+  padding: clamp(1.5rem, 5vw, 2.5rem);
+  text-align: center;
+
+  transform: scale(0.93);
+  opacity: 0;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease-out;
+}
+
+#email-prompt-overlay.active #email-prompt-container {
+  transform: scale(1);
+  opacity: 1;
+}
+
+#email-prompt-container h2 {
+  font-size: 22px;
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+#email-prompt-subtext {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+#email-prompt-save {
+  background-color: var(--accent);
+  color: #ffffff;
+}
+
+#email-prompt-save:hover {
+  background-color: var(--accent-hover);
+}
+
+#email-prompt-skip {
+  background-color: transparent;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 500;
+  margin-bottom: 0;
+}
+
+#email-prompt-skip:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #email-prompt-container {
+    transition: opacity 0.3s ease-out;
+    transform: none;
+  }
+}
+
+/* ─── DASHBOARD MASTER GRID ENVIRONMENT ─── */
 #dashboard {
   display: grid;
   grid-template-columns: 260px 1fr;
@@ -158,6 +479,7 @@ body {
   grid-template-columns: 88px 1fr;
 }
 
+/* ─── SPA ENTRANCE INTERACTION TRANSFORMS ─── */
 #sidebar {
   grid-area: sidebar;
   padding: 24px 16px;
@@ -165,8 +487,45 @@ body {
   flex-direction: column;
   align-items: stretch;
   overflow: hidden;
+  
+  transform: translateX(-60px);
+  opacity: 0;
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), 
+              opacity 0.6s ease,
+              grid-template-columns 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+#top-bar {
+  grid-area: topbar;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--panel-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
+  border-radius: var(--radius-lg);
+  padding: 16px 24px;
+  
+  transform: translateY(-40px);
+  opacity: 0;
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), 
+              opacity 0.5s ease;
+}
+
+body.logged-in #sidebar {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+body.logged-in #top-bar {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* ─── SIDEBAR TOGGLE MECHANICS ─── */
 #sidebar-toggle-btn {
   background: transparent;
   border: none;
@@ -197,7 +556,7 @@ body {
   transform: rotate(180deg);
 }
 
-/* ─── SIDEBAR NAV ITEMS ─── */
+/* ─── NAVIGATION BUTTON BAR ─── */
 #sidebar nav {
   display: flex;
   flex-direction: column;
@@ -244,15 +603,14 @@ body {
 }
 
 #sidebar nav .nav-item span {
-  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s ease;
+  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   opacity: 1;
 }
 
-/* ─── COLLAPSED ARCHITECTURE ─── */
+/* ─── SIDEBAR COMPRESSED CONFIGURATION COLLAPSE ─── */
 #dashboard.collapsed #sidebar nav .nav-item span {
   display: none;
   opacity: 0;
-  transform: translateX(-10px);
   pointer-events: none;
 }
 
@@ -276,22 +634,7 @@ body {
   transform: scale(1.08);
 }
 
-/* ─── HEADER TOP BAR SURFACES ─── */
-#top-bar {
-  grid-area: topbar;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  background: var(--panel-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: var(--panel-border);
-  box-shadow: var(--panel-shadow);
-  border-radius: var(--radius-lg);
-  padding: 16px 24px;
-}
-
+/* ─── HEADER IDENTITY & TOPBAR ACTIONS DOCK ─── */
 #top-bar .student-meta {
   display: flex;
   flex-direction: column;
@@ -344,7 +687,7 @@ body {
   transform: scale(1.05);
 }
 
-/* ─── DASHBOARD CONTENT CARDS GRID ─── */
+/* ─── WORKSPACE CONTENT SURFACE CANVAS ─── */
 #widget-container {
   grid-area: content;
   display: grid;
@@ -366,13 +709,29 @@ body {
   padding: 0 4px;
 }
 
+/* ─── DYNAMIC STAGGER TRANSITION CARDS BASE STATES ─── */
+.widget, .main-categories-label {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), 
+              opacity 0.5s ease,
+              background 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+              border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.widget.animate-in, .main-categories-label.animate-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── WIDGET ARCHITECTURE FLOATING LAYER HOOKS ─── */
 .widget {
+  position: relative; 
   padding: 24px;
   border-radius: var(--radius-lg);
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.05);
   min-height: 160px;
-  transition: var(--transition-standard);
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -384,6 +743,51 @@ body {
   transform: translateY(-4px);
   background: var(--panel-bg-hover);
   border-color: rgba(255, 255, 255, 0.12);
+  z-index: 999; /* Fixes sequential leakage from Exams/Courses layout chains */
+}
+
+/* Base Modal Configuration - Clean, isolated cascading layout rules */
+.modal-hover-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.95);
+  
+  width: 260px;
+  height: 260px;
+  padding: 20px;
+  
+  /* Smoky acrylic blur shielding theme layout tint */
+  background: rgba(18, 24, 36, 0.94); 
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.65), 
+              inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-lg);
+  z-index: 1000;
+  
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  text-align: left; 
+
+  opacity: 0;
+  pointer-events: none;
+transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.widget:hover .modal-hover-content {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* The Structural Clean Up: Overriding small widgets variables via the cascade */
+.widget[data-size="small"] .modal-hover-content {
+  flex-shrink: 0;
 }
 
 .widget-icon-container {
@@ -397,7 +801,6 @@ body {
   justify-content: center;
   margin-bottom: 16px;
   color: rgba(255, 255, 255, 0.7);
-  transition: var(--transition-standard);
 }
 
 .widget:hover .widget-icon-container {
@@ -438,7 +841,22 @@ body {
   margin: 0;
 }
 
-/* ─── OFFICIAL LOGO ENGINE ─── */
+/* ─── DYNAMIC GEAR SPINNING HOVER ENGINE ─── */
+#sidebar nav .nav-item svg, 
+.widget-icon-container svg {
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#sidebar nav .nav-item:hover svg[id="settings"] {
+  transform: rotate(360deg);
+}
+
+.widget:hover .widget-icon-container svg[id*="settings"],
+.widget:hover .widget-icon-container svg path[d*="M19.4"] {
+  transform: rotate(360deg);
+}
+
+/* ─── PRODUCTION GRADIENT BRAND IDENTITY LOGO ─── */
 #site-logo {
   position: absolute;
   top: 24px;
@@ -448,15 +866,9 @@ body {
   z-index: 100;
   pointer-events: none;
   filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.3));
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
-              height 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
               margin 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-#site-logo svg {
-  width: 100%;
-  height: 100%;
-  display: block;
 }
 
 body.logged-in #site-logo {
@@ -468,7 +880,7 @@ body.logged-in #site-logo {
   filter: drop-shadow(0 4px 12px rgba(29, 78, 216, 0.25));
 }
 
-/* ─── GRAPHIC ACCENT SCROLLBARS ─── */
+/* ─── CUSTOM ACCENT THEMED SCROLLBARS ─── */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -484,5 +896,182 @@ body.logged-in #site-logo {
   background: rgba(255, 255, 255, 0.1);
   border: 2px solid transparent;
   background-clip: padding-box;
-border-radius: var(--radius-sm);}::-webkit-scrollbar-thumb:hover {background: var(--accent);border: 2px solid transparent;background-clip: padding-box;}html {scrollbar-width: thin;scrollbar-color: rgba(255, 255, 255, 0.1) rgba(255, 255, 255, 0.01);-ms-overflow-style: auto;overflow-x: hidden;}
+  border-radius: var(--radius-sm);
+  transition: var(--transition-standard);
+}
 
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) rgba(255, 255, 255, 0.01);
+  -ms-overflow-style: auto;
+  overflow-x: hidden;
+}
+
+/* ─── FULL OVERLAY SUB-SECTION WORKSPACE (70% SCREEN VIEWPORT) ─── */
+/* ─── FULL OVERLAY SUB-SECTION WORKSPACE (70% SCREEN VIEWPORT) ─── */
+.full-section {
+  position: fixed;
+  /* Instead of top: 50% + translate, use clear viewport offsets */
+  top: 15vh; 
+  left: 15vw;
+  width: 70vw;
+  height: 70vh;
+  /* Darker glass acrylic theme variant for high readability */
+background: rgba(10, 15, 26, 0.30); /* Darkened slate base tone with tight opacity shielding */
+backdrop-filter: blur(24px);         /* Doubled density layer depth to diffuse background graphics */
+-webkit-backdrop-filter: blur(24px);
+border: 1px solid rgba(255, 255, 255, 0.08); /* Sophisticated crisp rim highlight border */
+
+/* Deeper shadow falloff calculation anchor to bounce it off the background */
+box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65), 
+            inset 0 1px 0 rgba(255, 255, 255, 0.1); 
+
+border-radius: 50px;
+
+  
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  grid-template-rows: auto 1fr;
+  padding: 32px;
+ 
+  
+  /* Reset any possible transform leakage */
+  transform: scale(0.95);
+  
+  /* Pure CSS animation orchestration engine variables */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s ease-out, 
+              visibility 0.3s ease-out, 
+              transform 0.3s ease-out;
+  
+  /* Pull it completely past the 1000 z-index of your hover modals */
+  z-index: 10000; 
+}
+
+/* Activated layout flag node toggled dynamically via class edits */
+.full-section.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: scale(1); /* Scales up perfectly into place */
+}
+
+/* Top Master Section Label Header */
+.full-section #section-label {
+  grid-column: 1 / -1;
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ─── LEFT COLUMN SUB-NAVIGATION ITEMS ─── */
+.full-section .fullsection-left-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  padding-right: 20px;
+}
+
+
+
+/* ─── RIGHT COLUMN WORKSPACE (DEAD-CENTERED EMPTY STATE) ─── */
+.full-section .modal-main-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.full-section .empty-state-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.full-section .empty-state-wrapper svg {
+  width: 56px !important;
+  height: 56px !important;
+  color: rgba(255, 255, 255, 0.2);
+  margin-bottom: 16px;
+  display: block;
+}
+
+.full-section .empty-state-wrapper p {
+  font-size: 30px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.35);
+  width: 500px;
+  height: 500px;
+  margin: 0;
+}
+
+#close-button {
+  position: fixed;
+  top: 2%;
+  right: 2%;
+  width: 32px;
+  height: 32px;
+  background-color: darkred;
+  border-radius: 10px;
+  z-index: 10005; /* Always stays one level higher than full-section container rules */
+  transition: all 0.2s ease-in-out;
+}
+
+#close-button:hover {
+  scale: 1.05;
+  background-color: red;
+}
+
+/* Interactive dynamic hover transitions for inner button instances */
+.hover-show-all-btn:hover {
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(26, 86, 219, 0.3);
+}
+
+/* Update your existing rule to cleanly stack child elements vertically */
+.full-widget-section {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  gap: 16px; 
+  top: 0%;
+  left: 0%;
+  width: 100%;
+  height: 100%;
+  background:  rgba(36, 36, 36, 0.60);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
+  border-radius: var(--radius-lg);
+  transition: opacity 0.3s ease-out, 
+              visibility 0.3s ease-out, 
+              transform 0.3s ease-out;
+  z-index: 10000;
+}
+
+.full-widget-section.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
