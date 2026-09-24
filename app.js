@@ -200,7 +200,6 @@ signupButton.addEventListener("click", async function(event) {
 
     const nameInput = document.getElementById("signup-name");
     const usernameInput = document.getElementById("signup-username");
-    const emailInput = document.getElementById("signup-email");
     const passwordInput = document.getElementById("signup-password");
     const errorEl = document.getElementById("signup-error");
 
@@ -208,10 +207,9 @@ signupButton.addEventListener("click", async function(event) {
 
     const full_name = nameInput.value.trim();
     const username = usernameInput.value.trim();
-    const email = emailInput.value.trim();
     const password = passwordInput.value;
 
-    if (!full_name || !username || !email || !password) {
+    if (!full_name || !username || !password) {
         errorEl.textContent = "All fields are required.";
         errorEl.hidden = false;
         return;
@@ -222,7 +220,7 @@ signupButton.addEventListener("click", async function(event) {
 
     // Account has to exist BEFORE the wizard opens — "Add Student" calls the
     // create-student Edge Function, which requires a real teacher session.
-    const { error } = await window.ClassIQAuth.signupTeacher({ username, full_name, email, password });
+    const { error } = await window.ClassIQAuth.signupTeacher({ username, full_name, password });
 
     signupButton.disabled = false;
     signupButton.textContent = "Sign Up";
