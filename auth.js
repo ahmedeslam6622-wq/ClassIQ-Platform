@@ -122,18 +122,26 @@ async function loginWithUsername(username, password) {
 }
 
 /**
- * Teacher self-signup. Students are never created this way — see
- * createStudent() below, which goes through the create-student Edge Function.
+ * Teacher self-signup. No email is collected anywhere in the UI — Supabase
+ * Auth structurally requires an email/password pair (it has no email-less
+ * signup mode), so a synthetic one is built from the username, same pattern
+ * as createStudent(). This is invisible to the user; nothing displays it.
+ * Students are never created this way — see createStudent() below, which
+ * goes through the create-student Edge Function.
  * The 'signup_role' metadata is what the on_auth_user_created trigger checks
  * before inserting a profiles row — see handle_new_teacher_signup in the SQL.
  */
-async function signupTeacher({ username, full_name, email, password }) {
-  if (!username || !full_name || !email || !password) {
+const TEACHER_EMAIL_DOMAIN = "teachers.classiq.internal";
+
+async function signupTeacher({ username, full_name, password }) {
+  if (!username || !full_name || !password) {
     return { error: "All fields are required." };
   }
 
+  const syntheticEmail = `${username}@${TEACHER_EMAIL_DOMAIN}`;
+
   const { data, error } = await supabaseClient.auth.signUp({
-    email,
+    email: syntheticEmail,
     password,
     options: {
       data: { signup_role: "teacher", username, full_name },
@@ -141,6 +149,14 @@ async function signupTeacher({ username, full_name, email, password }) {
   });
 
   if (error) {
+    // Supabase's own message would mention "email" here, which would be
+    // confusing since the user never entered one — reworded to match what
+    // they actually typed. The only realistic cause at this point is a
+    // duplicate username (synthetic email collision), since password
+    // length/format errors are the same regardless of email.
+    if (error.message.toLowerCase().includes("already registered")) {
+      return { error: "That username is already taken." };
+    }
     return { error: error.message };
   }
 
