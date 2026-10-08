@@ -1386,3 +1386,21 @@ button:disabled:active {
     scroll-behavior: auto !important;
   }
 }
+
+/* ─── ROLE-BASED SIDEBAR VISIBILITY FILTERING ─── */
+
+/* 1. Hide specialized navigation elements out of the box */
+.teacher-only,
+.student-only {
+  display: none !important;
+}
+
+/* 2. If the body is flagged as a teacher, show teacher tools */
+body.role-teacher .teacher-only {
+  display: flex !important; /* Matches your .nav-item design layout */
+}
+
+/* 3. If the body is flagged as a student, show student tools */
+body.role-student .student-only {
+  display: flex !important; /* Matches your .nav-item design layout */
+}
