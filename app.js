@@ -666,6 +666,7 @@ async function startSession(userId) {
   loadDashboard();
 }
 
+
 async function handleLoginSubmit(event) {
   event.preventDefault();
   const identifier = loginUsernameInput.value.trim();
@@ -678,7 +679,12 @@ async function handleLoginSubmit(event) {
 
   setBusy(loginButton, true, "Signing in…");
   setMessage(loginMessage, "");
+  
   try {
+    // ─── ADD THIS CRITICAL LINE TO CLEAR RESIDUE SESSIONS ───
+    await db.auth.signOut(); 
+    // ────────────────────────────────────────────────────────
+
     // Teachers log in with their email; students with the username their teacher gave them.
     const email = identifier.includes("@") ? identifier : studentEmail(identifier);
     const { data, error } = await db.auth.signInWithPassword({ email, password });
@@ -692,6 +698,7 @@ async function handleLoginSubmit(event) {
     setBusy(loginButton, false);
   }
 }
+
 
 async function handleSignupSubmit(event) {
   event.preventDefault();
