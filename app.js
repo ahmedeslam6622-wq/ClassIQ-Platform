@@ -746,7 +746,10 @@ async function handleSignupSubmit(event) {
 function loadDashboard() {
   if (authWrapper) authWrapper.style.display = "none";
   if (appMain) appMain.style.display = "block";
-
+    if (state.profile) {
+    document.body.classList.remove("role-teacher", "role-student");
+    document.body.classList.add(`role-${state.profile.role}`);
+  }
   document.body.classList.add("logged-in");
 
   if (siteLogo && sidebarNav) {
