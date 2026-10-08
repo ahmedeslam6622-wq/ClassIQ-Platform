@@ -746,11 +746,20 @@ async function handleSignupSubmit(event) {
 function loadDashboard() {
   if (authWrapper) authWrapper.style.display = "none";
   if (appMain) appMain.style.display = "block";
-    if (state.profile) {
+
+  document.body.classList.add("logged-in");
+
+  // ─── DIAGNOSTIC UPGRADE ───
+  console.log("Dashboard loaded! Profile data:", state.profile);
+  
+  if (state.profile) {
+    console.log("Applying role class for:", state.profile.role);
     document.body.classList.remove("role-teacher", "role-student");
     document.body.classList.add(`role-${state.profile.role}`);
+  } else {
+    console.error("CRITICAL: state.profile is null or undefined inside loadDashboard!");
   }
-  document.body.classList.add("logged-in");
+  // ──────────────────────────
 
   if (siteLogo && sidebarNav) {
     sidebarNav.insertBefore(siteLogo, sidebarNav.firstChild);
@@ -760,6 +769,7 @@ function loadDashboard() {
   renderWidgets();
   applySavedSidebarState();
 }
+
 
 async function handleLogout() {
   try {
