@@ -1,5 +1,4 @@
 "use strict";
-
 // ─── BACKEND CLIENT (Supabase) ───
 // Keys live in config.js. The anon key is public by design; row level security
 // (supabase/schema.sql) is what protects the data.
@@ -415,7 +414,7 @@ async function loadCoursesSection() {
       } catch (err) {
         console.error(err);
         setMessage(msg, "Could not save course. Try again.", "error");
-      } Hall: finally {
+      } finally {
         setBusy(submit, false);
       }
     });
