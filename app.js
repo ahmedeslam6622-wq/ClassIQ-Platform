@@ -347,8 +347,93 @@ async function loadCoursesSection() {
     .select("id,title,description")
     .order("title", { ascending: true });
   if (error) throw error;
-  return data.map((c) => sectionItem({ title: c.title, body: c.description }));
+
+  const elements = [];
+
+  // ─── TEACHER INPUT DESIGN ───
+  if (state.profile && state.profile.role === "teacher") {
+    const toolbar = el("div", "section-toolbar");
+    const addBtn = el("button", "section-action", "＋ Create New Course");
+    addBtn.type = "button";
+    addBtn.setAttribute("aria-expanded", "false");
+    toolbar.append(addBtn);
+
+    const panel = el("div", "section-panel");
+    panel.hidden = true;
+
+    const form = el("form", "input-group");
+    form.noValidate = true;
+
+    // Inputs matching your stylesheet core style layout parameters
+    const titleInput = field("text", "Course Name (e.g., Biology 101)", "off");
+    const descInput = field("text", "Description / Room Number (Optional)", "off");
+    const submit = el("button", "", "Save Course");
+    submit.type = "submit";
+    const msg = el("p", "form-message");
+
+    form.append(
+      labeledField("Course Title *", titleInput),
+      labeledField("Description", descInput),
+      submit, 
+      msg
+    );
+    panel.append(form);
+
+    addBtn.addEventListener("click", () => {
+      panel.hidden = !panel.hidden;
+      addBtn.setAttribute("aria-expanded", String(!panel.hidden));
+      if (!panel.hidden) titleInput.focus();
+    });
+
+    // Wire up the submit button to save the course to Supabase
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const title = titleInput.value.trim();
+      const description = descInput.value.trim() || null;
+
+      if (!title) return setMessage(msg, "Course title cannot be empty.", "error");
+
+      setBusy(submit, true, "Saving to database...");
+      setMessage(msg, "");
+
+      try {
+        const { error: insErr } = await db
+          .from("courses")
+          .insert([{ 
+            title, 
+            description, 
+            created_by: state.profile.id // Stamping it with this teacher's ID
+          }]);
+
+        if (insErr) throw insErr;
+        
+        form.reset();
+        setMessage(msg, `Successfully created "${title}"!`, "success");
+        
+        // Refresh view smoothly so the new course appears right away
+        setTimeout(() => populateSection("Courses"), 800);
+      } catch (err) {
+        console.error(err);
+        setMessage(msg, "Could not save course. Try again.", "error");
+      } Hall: finally {
+        setBusy(submit, false);
+      }
+    });
+
+    elements.push(toolbar, panel);
+  }
+
+  // ─── RENDERING THE LIST FOR BOTH TEACHER & STUDENT ───
+  const list = el("div", "section-items");
+  const note = el("p", "section-note", "No courses available yet.");
+  note.hidden = data.length > 0;
+  
+  data.forEach((c) => list.append(sectionItem({ title: c.title, body: c.description })));
+  elements.push(note, list);
+
+  return elements;
 }
+
 
 async function loadMailSection() {
   const { data, error } = await db
