@@ -396,12 +396,19 @@ async function loadCoursesSection() {
       setMessage(msg, "");
 
       try {
+        // ─── ADDED: Fetches the active authenticated user session securely ───
+        const { data: { user } } = await db.auth.getUser();
+        
+        if (!user) {
+          throw new Error("No active authentication session discovered.");
+        }
+
         const { error: insErr } = await db
           .from("courses")
           .insert([{ 
             title, 
             description, 
-             teacher_id: user.id 
+            teacher_id: user.id 
           }]);
 
         if (insErr) throw insErr;
@@ -432,6 +439,7 @@ async function loadCoursesSection() {
 
   return elements;
 }
+
 
 
 async function loadMailSection() {
