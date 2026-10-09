@@ -401,7 +401,7 @@ async function loadCoursesSection() {
           .insert([{ 
             title, 
             description, 
-            created_by: state.profile.id // Stamping it with this teacher's ID
+             teacher_id: user.id 
           }]);
 
         if (insErr) throw insErr;
